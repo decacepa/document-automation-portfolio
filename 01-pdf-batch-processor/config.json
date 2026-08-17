@@ -1,0 +1,21 @@
+{
+  "paths": {
+    "inbox": "inbox",
+    "outbox": "outbox",
+    "quarantine": "quarantine",
+    "log_file": "logs/pipeline.log"
+  },
+  "extraction": {
+    "page_index": 0,
+    "id_pattern": "ID NUMBER:\\s*(\\d{10})"
+  },
+  "naming": {
+    "template": "{id}_{year}_{term}_{code}.pdf",
+    "year": "2024",
+    "term": "02",
+    "unit_code": "006502"
+  },
+  "limits": {
+    "max_file_size_kb": 400
+  }
+}

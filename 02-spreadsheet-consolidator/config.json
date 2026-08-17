@@ -1,0 +1,15 @@
+{
+  "paths": {
+    "individual": "individual",
+    "master_file": "master_report.xlsx",
+    "log_file": "logs/consolidate.log"
+  },
+  "source": {
+    "staff_id_cell": "B2",
+    "name_cell": "B3",
+    "first_data_row": 7
+  },
+  "validation": {
+    "max_unit_cost": 15.0
+  }
+}

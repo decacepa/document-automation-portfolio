@@ -1,0 +1,18 @@
+{
+  "paths": {
+    "log_file": "logs/bot.log"
+  },
+  "schedule": {
+    "interval_seconds": 900
+  },
+  "rules": {
+    "routes": ["GRU-MIA", "GRU-JFK"],
+    "max_price": 700,
+    "min_seats": 2,
+    "earliest_date": "2026-09-01",
+    "latest_date": "2026-12-20"
+  },
+  "notify": {
+    "channel": "email"
+  }
+}

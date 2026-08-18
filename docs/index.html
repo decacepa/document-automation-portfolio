@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carlos — Document & Spreadsheet Automation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ground:#1E2430; --panel:#262E3D; --panel-2:#2E3849; --line:#3A4557;
+    --ink:#E8EDF5; --muted:#8D9BB1; --before:#E4735E; --after:#54D2A0; --signal:#F0B429;
+    --display:"Bricolage Grotesque",system-ui,sans-serif;
+    --body:"IBM Plex Sans",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+  a{color:inherit}
+  .topbar{border-bottom:1px solid var(--line);font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted)}
+  .topbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:14px;padding-bottom:14px}
+  .status{display:flex;align-items:center;gap:8px;color:var(--after)}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--after);flex:none}
+  .hero{padding:72px 0 8px}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);margin-bottom:22px}
+  h1{font-family:var(--display);font-weight:800;font-size:clamp(2.4rem,6.2vw,4.3rem);line-height:1.02;letter-spacing:-.025em;max-width:15ch}
+  h1 em{font-style:normal;color:var(--muted)}
+  .lede{margin-top:24px;max-width:54ch;font-size:1.06rem;color:#C3CDDC}
+  .runner{margin-top:48px;border:1px solid var(--line);border-radius:10px;background:var(--panel);overflow:hidden}
+  .runner-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--panel-2);font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.03em}
+  .runner-head strong{color:var(--ink);font-weight:500}
+  .rows{padding:8px 0}
+  .row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;padding:11px 18px;font-family:var(--mono);font-size:13px}
+  .fname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--before);transition:color .3s ease}
+  .fsize{color:var(--muted);font-size:12px;white-space:nowrap}
+  .flag{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--before);border:1px solid currentColor;border-radius:3px;padding:2px 7px;white-space:nowrap;transition:color .3s ease}
+  .row.done .fname,.row.done .flag{color:var(--after)}
+  .row.working .fname,.row.working .flag{color:var(--signal)}
+  .runner-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 18px;border-top:1px solid var(--line);background:var(--panel-2)}
+  .log{font-family:var(--mono);font-size:12px;color:var(--muted);min-height:1.4em}
+  .log b{color:var(--after);font-weight:500}
+  button.run{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:transparent;color:var(--signal);border:1px solid var(--signal);border-radius:4px;padding:9px 16px;cursor:pointer;transition:background .2s ease,color .2s ease}
+  button.run:hover{background:var(--signal);color:var(--ground)}
+  button.run:focus-visible,a:focus-visible{outline:2px solid var(--signal);outline-offset:3px}
+  button.run[disabled]{opacity:.4;cursor:default}
+  .figures{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;margin-top:56px;overflow:hidden}
+  .fig{background:var(--ground);padding:22px 20px}
+  .fig .n{font-family:var(--display);font-weight:800;font-size:1.9rem;letter-spacing:-.02em}
+  .fig .l{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:6px}
+  section{padding:84px 0}
+  .sec-label{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--signal);margin-bottom:14px}
+  h2{font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,3.6vw,2.4rem);letter-spacing:-.02em;line-height:1.15}
+  .sec-intro{margin-top:14px;max-width:56ch;color:#C3CDDC}
+  .services{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:26px;margin-top:44px}
+  .service{border-top:2px solid var(--line);padding-top:18px}
+  .service h3{font-family:var(--display);font-weight:600;font-size:1.12rem;letter-spacing:-.01em}
+  .service p{color:var(--muted);font-size:.95rem;margin-top:8px}
+  .cases{margin-top:44px;display:flex;flex-direction:column;gap:20px}
+  .case{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:26px}
+  .case h3{font-family:var(--display);font-weight:700;font-size:1.22rem;letter-spacing:-.015em}
+  .case .kind{font-family:var(--mono);font-size:11.5px;color:var(--signal);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+  .case dl{margin-top:18px;display:grid;grid-template-columns:96px 1fr;gap:10px 18px;font-size:.95rem}
+  .case dt{font-family:var(--mono);font-size:11.5px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding-top:4px}
+  .case dd{color:#C3CDDC}
+  .case dd.win{color:var(--after)}
+  .hours{border:1px solid var(--line);border-radius:10px;padding:26px;margin-top:36px;background:var(--panel)}
+  .clock{display:grid;grid-template-columns:110px 1fr;gap:10px 16px;align-items:center;font-family:var(--mono);font-size:12px}
+  .zone{color:var(--muted);letter-spacing:.04em}
+  .bar{height:12px;border-radius:2px;background:var(--panel-2);position:relative;overflow:hidden}
+  .fill{position:absolute;top:0;bottom:0;background:var(--after);opacity:.85}
+  .scale{grid-column:2;display:flex;justify-content:space-between;color:var(--muted);font-size:10.5px;letter-spacing:.05em;margin-top:2px}
+  .terms{margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+  .term h3{font-family:var(--display);font-weight:600;font-size:1.05rem}
+  .term p{color:var(--muted);font-size:.94rem;margin-top:6px}
+  .contact{border-top:1px solid var(--line);padding:84px 0 96px}
+  .contact h2{max-width:18ch}
+  .actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+  .btn{display:inline-block;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;padding:14px 22px;border-radius:4px;border:1px solid var(--signal);color:var(--signal);transition:background .2s ease,color .2s ease}
+  .btn.solid{background:var(--signal);color:var(--ground)}
+  .btn:hover{background:var(--signal);color:var(--ground)}
+  footer{border-top:1px solid var(--line);padding:22px 0;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  footer .wrap{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  @media (max-width:560px){
+    .hero{padding-top:52px} section{padding:64px 0}
+    .row{grid-template-columns:1fr auto;gap:10px} .row .flag{display:none}
+    .case dl{grid-template-columns:1fr;gap:4px 0} .case dt{padding-top:10px}
+    .clock{grid-template-columns:76px 1fr}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="wrap">
+  <span>CARLOS — DOCUMENT AUTOMATION</span>
+  <span class="status"><span class="dot"></span>Available for new projects</span>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <p class="eyebrow">Python · PDF batch processing · Excel</p>
+  <h1>A folder nobody wants to open. <em>Fixed in two minutes.</em></h1>
+  <p class="lede">I build the scripts that handle the document work your team does by hand: scanned PDFs renamed to a strict standard, compressed under a hard size limit, and dozens of spreadsheets merged into one file that actually reconciles.</p>
+
+  <div class="runner">
+    <div class="runner-head">
+      <span><strong>inbox/</strong> — 29 scanned files, no naming standard</span>
+      <span>target: &lt;ID&gt;_&lt;year&gt;_&lt;term&gt;_&lt;code&gt;.pdf · max 400 KB</span>
+    </div>
+    <div class="rows" id="rows">
+      <div class="row" data-after="8842019073_2024_02_006502.pdf" data-size-after="392 KB"><span class="fname">scan_0012.pdf</span><span class="fsize">1.8 MB</span><span class="flag">rejected</span></div>
+      <div class="row" data-after="7310558264_2024_02_006502.pdf" data-size-after="358 KB"><span class="fname">IMG_20240115_0042.pdf</span><span class="fsize">2.1 MB</span><span class="flag">rejected</span></div>
+      <div class="row" data-after="6027443915_2024_02_006502.pdf" data-size-after="377 KB"><span class="fname">Documento (3).pdf</span><span class="fsize">1.4 MB</span><span class="flag">rejected</span></div>
+      <div class="row" data-after="5194806732_2024_02_006502.pdf" data-size-after="384 KB"><span class="fname">final ok v2 REVISADO.pdf</span><span class="fsize">2.6 MB</span><span class="flag">rejected</span></div>
+      <div class="row" data-after="4478210659_2024_02_006502.pdf" data-size-after="366 KB"><span class="fname">novo scan (copy).pdf</span><span class="fsize">1.9 MB</span><span class="flag">rejected</span></div>
+    </div>
+    <div class="runner-foot">
+      <span class="log" id="log">Press run to process the batch.</span>
+      <button class="run" id="run">Run automation</button>
+    </div>
+  </div>
+
+  <div class="figures">
+    <div class="fig"><div class="n">29</div><div class="l">files per cycle</div></div>
+    <div class="fig"><div class="n">1 day → 2 min</div><div class="l">manual vs. script</div></div>
+    <div class="fig"><div class="n">400 KB</div><div class="l">hard size ceiling met</div></div>
+    <div class="fig"><div class="n">0</div><div class="l">naming errors</div></div>
+  </div>
+</div></header>
+
+<section><div class="wrap">
+  <p class="sec-label">What I build</p>
+  <h2>Four kinds of work, one idea behind them</h2>
+  <p class="sec-intro">If a person opens files one by one every month and applies the same rule each time, that rule can be written down. Once it's written down, it can run without them.</p>
+  <div class="services">
+    <div class="service"><h3>PDF batch processing</h3><p>Read scanned PDFs, pull an ID or code from the page, rename every file to your standard, and compress each one under your size limit.</p></div>
+    <div class="service"><h3>Spreadsheet consolidation</h3><p>Merge dozens of individual files into one master report, with validation that flags a broken row instead of quietly producing a wrong total.</p></div>
+    <div class="service"><h3>Recurring reports</h3><p>Cost control, receipts and progress tracking rebuilt automatically each cycle, from the same sources, in the same format.</p></div>
+    <div class="service"><h3>Monitoring bots</h3><p>A script that watches a source, applies your criteria, logs every check and alerts you only when something actually matches.</p></div>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="sec-label">Selected work</p>
+  <h2>Three systems, running in production</h2>
+  <p class="sec-intro">Client and personal data removed. The full source of all three is on GitHub.</p>
+  <div class="cases">
+    <article class="case">
+      <p class="kind">PDF pipeline</p>
+      <h3>29 scanned documents, one strict standard</h3>
+      <dl>
+        <dt>Problem</dt><dd>Each scanned PDF belonged to a different person, had to be renamed to a four-part standard, and was rejected by the archiving system above 400 KB.</dd>
+        <dt>Build</dt><dd>Python script that reads page 1, extracts the ID, assembles the filename from ID, year, term and document code, then compresses until the file fits — without losing readability.</dd>
+        <dt>Result</dt><dd class="win">A full working day reduced to under two minutes. Zero naming errors across the batch.</dd>
+      </dl>
+    </article>
+    <article class="case">
+      <p class="kind">Excel consolidation</p>
+      <h3>Dozens of individual sheets into one master report</h3>
+      <dl>
+        <dt>Problem</dt><dd>One spreadsheet per person, rebuilt every cycle into a single report where the totals had to reconcile exactly. One wrong cell invalidated the whole file.</dd>
+        <dt>Build</dt><dd>Automated consolidation with validation rules that stop and flag a missing or malformed row rather than passing it through.</dd>
+        <dt>Result</dt><dd class="win">One master file, rebuilt in minutes, with every discrepancy surfaced before submission.</dd>
+      </dl>
+    </article>
+    <article class="case">
+      <p class="kind">Monitoring bot</p>
+      <h3>Rules in a config file, not in the code</h3>
+      <dl>
+        <dt>Problem</dt><dd>A source that changes constantly, where only a narrow set of conditions is worth acting on — and checking manually means missing them.</dd>
+        <dt>Build</dt><dd>Python bot reading its criteria from an external config.json, so the rules can be changed without touching the code, with a full log of every check.</dd>
+        <dt>Result</dt><dd class="win">Runs unattended in production and catches matches that manual checking missed.</dd>
+      </dl>
+    </article>
+  </div>
+</div></section>
+
+<section><div class="wrap">
+  <p class="sec-label">How I work</p>
+  <h2>Written, async, and awake when you are</h2>
+  <div class="hours">
+    <div class="clock">
+      <span class="zone">São Paulo</span><div class="bar"><span class="fill" style="left:54.2%;width:37.5%"></span></div>
+      <span class="zone">New York</span><div class="bar"><span class="fill" style="left:50%;width:37.5%"></span></div>
+      <span class="zone">San Francisco</span><div class="bar"><span class="fill" style="left:37.5%;width:37.5%"></span></div>
+      <div class="scale"><span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+    </div>
+    <p class="sec-intro" style="margin-top:22px">I'm at the desk 1:00 PM to 10:00 PM Brazil time, seven days a week — the full US business day, both coasts, including Friday afternoons and weekends when most freelancers are offline.</p>
+  </div>
+  <div class="terms">
+    <div class="term"><h3>Everything in writing</h3><p>No voice calls. Specs, decisions and handover all go through chat, which keeps the scope clear and the record searchable.</p></div>
+    <div class="term"><h3>You keep the script</h3><p>Every delivery includes the code, an editable config file and plain-English documentation. You can run it again without me.</p></div>
+    <div class="term"><h3>Fixed price, fixed scope</h3><p>I quote the job, not the hour. If the scope changes mid-project, we agree on the new number before I build it.</p></div>
+  </div>
+</div></section>
+
+<div class="contact"><div class="wrap">
+  <p class="sec-label">Start here</p>
+  <h2>Send me three sample files and the rule.</h2>
+  <p class="sec-intro">I'll tell you whether it can be automated, how long it takes and what it costs — before you pay anything.</p>
+  <div class="actions">
+    <a class="btn solid" href="https://github.com/decacepa/document-automation-portfolio">Read the code</a>
+    <a class="btn" href="https://github.com/decacepa">Contact me on GitHub</a>
+  </div>
+</div></div>
+
+<footer><div class="wrap">
+  <span>Carlos — Document &amp; Spreadsheet Automation</span>
+  <span>Brazil · UTC−3 · Working in English, in writing</span>
+</div></footer>
+<script>
+(function(){
+  var rows = Array.prototype.slice.call(document.querySelectorAll('.row'));
+  var btn = document.getElementById('run');
+  var log = document.getElementById('log');
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  rows.forEach(function(r){
+    r.dataset.before = r.querySelector('.fname').textContent;
+    r.dataset.sizeBefore = r.querySelector('.fsize').textContent;
+  });
+  function resetRow(r){
+    r.classList.remove('done','working');
+    r.querySelector('.fname').textContent = r.dataset.before;
+    r.querySelector('.fsize').textContent = r.dataset.sizeBefore;
+    r.querySelector('.flag').textContent = 'rejected';
+  }
+  function finish(r){
+    r.classList.remove('working');
+    r.classList.add('done');
+    r.querySelector('.fname').textContent = r.dataset.after;
+    r.querySelector('.fsize').textContent = r.dataset.sizeAfter;
+    r.querySelector('.flag').textContent = 'accepted';
+  }
+  function done(){
+    log.innerHTML = '29 files processed &middot; <b>0 errors</b> &middot; 1m 47s';
+    btn.disabled = false;
+    btn.textContent = 'Run again';
+  }
+  function run(){
+    btn.disabled = true;
+    if (reduced){ rows.forEach(finish); done(); return; }
+    rows.forEach(resetRow);
+    log.textContent = 'Reading page 1 \u00b7 extracting ID \u00b7 compressing\u2026';
+    rows.forEach(function(r, i){
+      setTimeout(function(){ r.classList.add('working'); }, 260 * i);
+      setTimeout(function(){ finish(r); }, 260 * i + 190);
+    });
+    setTimeout(done, 260 * rows.length + 320);
+  }
+  btn.addEventListener('click', run);
+  rows.forEach(resetRow);
+  if (!reduced) setTimeout(run, 900);
+})();
+</script>
+</body>
+</html>
